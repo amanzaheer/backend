@@ -7,6 +7,7 @@ import userRouter from "./routes/userRoute.js";
 import productRouter from "./routes/productRoute.js";
 import cartRouter from "./routes/cartRoute.js";
 import orderRouter from "./routes/orderRoute.js";
+import { notFoundErrorHandler, errorHandler } from "./middleware/errorHandler.js";
 
 // App Config
 const app = express();
@@ -52,15 +53,11 @@ app.get("/", (req, res) => {
   res.send("Amana Organics API - Natural Products Store");
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    success: false, 
-    message: "Something went wrong!",
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
-  });
-});
+// 404 handler - must be before error handler
+app.use(notFoundErrorHandler);
+
+// Error handling middleware - must be last
+app.use(errorHandler);
 
 // For local development
 if (process.env.NODE_ENV !== 'production') {
