@@ -110,11 +110,16 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
 export const adminLogin = expressAsyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
+  // Static admin credentials (as backup/alternative to environment variables)
+  const staticAdminEmail = "admin@amanaorganics.com";
+  const staticAdminPassword = "admin123456";
+
+  // Check against environment variables first, then static credentials
+  const isValidEmail = email === process.env.ADMIN_EMAIL || email === staticAdminEmail;
+  const isValidPassword = password === process.env.ADMIN_PASSWORD || password === staticAdminPassword;
+
   // Validate credentials
-  if (
-    email === process.env.ADMIN_EMAIL &&
-    password === process.env.ADMIN_PASSWORD
-  ) {
+  if (isValidEmail && isValidPassword) {
     // Generate JWT token
     const token = jwt.sign(
       { email, role: "admin" }, // Include role in the token payload
